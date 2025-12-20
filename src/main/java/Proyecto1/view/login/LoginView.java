@@ -1,4 +1,4 @@
-package Proyecto1.view;
+package main.java.Proyecto1.view.login;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

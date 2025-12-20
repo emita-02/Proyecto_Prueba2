@@ -1,4 +1,4 @@
-package Proyecto1.view.admin;
+package main.java.Proyecto1.view.admin;
 
 import javax.swing.*;
 

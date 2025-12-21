@@ -53,15 +53,17 @@ public class LoginView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String usuario = txtusuario.getText();
-                String clave = new String(jpscontraseña.getPassword());
+                String clave = String.valueOf(jpscontraseña.getPassword()); // se mantiene, pero no se muestra
 
-                JOptionPane.showMessageDialog(null,
-                        "Usuario: " + usuario + "\nContraseña: " + clave);
+                JOptionPane.showMessageDialog(
+                        LoginView.this,
+                        "Bienvenido " + usuario
+                );
             }
         });
 
         setContentPane(rootPanel);
-        setTitle("Login");
+        setTitle("Login de Usuario"); // pequeño cambio
         setSize(380, 260);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -71,4 +73,5 @@ public class LoginView extends JFrame {
         new LoginView().setVisible(true);
     }
 }
+
 

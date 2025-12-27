@@ -1,9 +1,11 @@
 package main.java.Proyecto1.app;
 
+import main.java.Proyecto1.view.login.LoginView;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args){
-        System.out.println("Proyecto CRUD iniciado");
+        new LoginView().setVisible(true);
     }
 }

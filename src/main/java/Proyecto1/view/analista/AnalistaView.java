@@ -1,4 +1,6 @@
 package main.java.Proyecto1.view.analista;
 
-public class AnalistaView {
+import javax.swing.*;
+
+public class AnalistaView extends JFrame {
 }

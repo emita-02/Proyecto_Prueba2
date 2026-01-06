@@ -26,6 +26,7 @@ public class ConductorDAO implements Persistible<Conductor> {
      * Constructor que inicializa la configuración de base de datos
      */
     public ConductorDAO() {
+
         this.dbConfig = DatabaseConfig.getInstance();
     }
 

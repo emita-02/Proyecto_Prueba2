@@ -6,7 +6,7 @@ public class Usuario {
     private String cedula;
     private String username;
     private String password;
-    private String rol; //administrados o analista
+    private String rol; //administrador o analista
     private boolean activo;
 
     public Usuario() {

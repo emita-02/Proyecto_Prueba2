@@ -28,7 +28,7 @@ public class UsuarioDAO implements Persistible<Usuario> {
     }
 
     public Long insertarUsuario(Usuario usuario) throws BaseDatosException{
-        String sql = "INSERT INTO usuarios(nombre, cedula, username, password, rol, activo) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO usuarios(nombre, cedula, username, password, rol, activo) VALUES(?, ?, ?, ?, ?, ?)";
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -151,7 +151,7 @@ public class UsuarioDAO implements Persistible<Usuario> {
         }
     }
 
-    public List<Usuario> buscarPorNombre(String nombre) throws BaseDatosException {
+    public List<Usuario> buscarPorUsername(String username) throws BaseDatosException {
         String sql = "SELECT * FROM usuarios WHERE nombre = ?";
 
         Connection conn = null;
@@ -162,7 +162,7 @@ public class UsuarioDAO implements Persistible<Usuario> {
         try {
             conn = dbConfig.obtenerConexion();
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, nombre);
+            stmt.setString(1, username);
 
             rs = stmt.executeQuery();
 
@@ -173,7 +173,7 @@ public class UsuarioDAO implements Persistible<Usuario> {
             return usuarios;
 
         } catch (SQLException e) {
-            throw new BaseDatosException("Error al buscar usuarios por nombre: " + e.getMessage(), e);
+            throw new BaseDatosException("Error al buscar usuarios: " + e.getMessage(), e);
         } finally {
             cerrarRecursos(conn, stmt, rs);
         }
@@ -229,6 +229,8 @@ public class UsuarioDAO implements Persistible<Usuario> {
     public Usuario mapearUsuario(ResultSet rs) throws SQLException{
         Usuario u = new Usuario();
         u.setId(rs.getLong("id"));
+        u.setNombre(rs.getString("nombre"));
+        u.setCedula(rs.getString("cedula"));
         u.setUsername(rs.getString("username"));
         u.setPassword(rs.getString("password"));
         u.setRol(rs.getString("rol"));

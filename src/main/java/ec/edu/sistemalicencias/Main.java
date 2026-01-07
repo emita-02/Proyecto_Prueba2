@@ -3,6 +3,7 @@ package ec.edu.sistemalicencias;
 
 import ec.edu.sistemalicencias.config.DatabaseConfig;
 import ec.edu.sistemalicencias.view.MainView;
+import ec.edu.sistemalicencias.view.LoginView;
 
 import javax.swing.*;
 
@@ -38,10 +39,13 @@ public class Main {
                 mostrarErrorConexion();
                 return;
             }
+            //Inicializar el Login
+            LoginView loginView = new LoginView();
+            loginView.setVisible(true);
 
             // Iniciar ventana principal
-            MainView mainView = new MainView();
-            mainView.setVisible(true);
+            //MainView mainView = new MainView();
+           // mainView.setVisible(true);
         });
     }
 

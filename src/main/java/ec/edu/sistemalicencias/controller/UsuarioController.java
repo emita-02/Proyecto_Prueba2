@@ -2,22 +2,24 @@ package ec.edu.sistemalicencias.controller;
 
 import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.DatosInvalidosException;
+import ec.edu.sistemalicencias.service.UsuarioService;
 
 import javax.swing.*;
 import java.util.List;
 
 public class UsuarioController {
+
     private final UsuarioService usuarioService;
 
     public UsuarioController() {
         this.usuarioService = new UsuarioService();
     }
 
-    //Crear usuario analista
-    public void crearAnalista(String username){
+    //Crear usuario
+    public void crearUsuario(Usuario usuario){
         try{
-            usuarioService.crearAnalista(username);
-            mostrarExito("Usuario analista creado correctamente");
+            usuarioService.crearUsuario(usuario);
+            mostrarExito("Usuario creado correctamente");
         } catch (DatosInvalidosException e){
             mostrarError(e.getMessage());
         } catch (Exception e){

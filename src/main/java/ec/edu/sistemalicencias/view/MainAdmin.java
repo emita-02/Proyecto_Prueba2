@@ -3,6 +3,7 @@ package ec.edu.sistemalicencias.view;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import ec.edu.sistemalicencias.controller.UsuarioController;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -19,7 +20,11 @@ public class MainAdmin extends JFrame {
     private JLabel lblTitulo2;
     private JPanel jpMainAdmin;
 
+    private final UsuarioController controller;
+
     public MainAdmin() {
+        this.controller = new UsuarioController();
+
         setTitle("Panel Administrador");
         setSize(600, 400);
         setLocationRelativeTo(null);
@@ -34,6 +39,48 @@ public class MainAdmin extends JFrame {
     // Getters si luego usas controlador
     public JButton getBtnSalir() {
         return btnSalir;
+    }
+
+    //Configurar los eventos de los botones para el menu de administrador
+    private void configurarEventos() {
+        //Botón de Gestión de Conductores
+        btnGestionUsuarios.addActionListener(e -> abrirGestionUsuarios());
+
+        //Botón de de Generar Reportes
+        //btnGenerarReporte.addActionListener(e -> abrirGenerarReporte());
+
+        //Botón Salir
+        //btnSalir.addActionListener(e -> salirAplicacion());
+    }
+
+    //Abrir la ventana para Gestión de Usuarios
+    private void abrirGestionUsuarios() {
+        try {
+            GestionUsuarios gestionView = new GestionUsuarios(controller);
+            gestionView.setVisible(true);
+        } catch (Exception e) {
+            mostrarError("Error al abrir Gestión de Usuarios: " + e.getMessage());
+        }
+    }
+
+    //Abrir la ventana para Generar Reportes
+    /*
+    private void abrirGenerarReporte() {
+        try {
+
+        }
+    }
+
+
+     */
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 
     {
@@ -52,7 +99,7 @@ public class MainAdmin extends JFrame {
      */
     private void $$$setupUI$$$() {
         jpMainAdmin = new JPanel();
-        jpMainAdmin.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+        jpMainAdmin.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 20, 0), -1, -1));
         jpMainAdmin.add(panel1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
@@ -67,14 +114,10 @@ public class MainAdmin extends JFrame {
         if (lblTitulo2Font != null) lblTitulo2.setFont(lblTitulo2Font);
         lblTitulo2.setText("Agencia Nacional de Tránsito");
         panel1.add(lblTitulo2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer1 = new Spacer();
-        jpMainAdmin.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        jpMainAdmin.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(2, 2, new Insets(10, 10, 10, 10), -1, -1));
+        panel2.setLayout(new GridLayoutManager(4, 2, new Insets(10, 10, 10, 10), -1, -1));
         jpMainAdmin.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Sistema del Administrador", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Sistema de Administrador", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         btnGestionUsuarios = new JButton();
         Font btnGestionUsuariosFont = this.$$$getFont$$$("Arial", -1, 14, btnGestionUsuarios.getFont());
         if (btnGestionUsuariosFont != null) btnGestionUsuarios.setFont(btnGestionUsuariosFont);
@@ -86,12 +129,12 @@ public class MainAdmin extends JFrame {
         btnGenerarReporte.setText("Generar Reporte");
         panel2.add(btnGenerarReporte, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 80), null, 0, false));
         btnSalir = new JButton();
-        btnSalir.setBackground(new Color(-2104859));
+        btnSalir.setBackground(new Color(-1769440));
         Font btnSalirFont = this.$$$getFont$$$("Arial", Font.BOLD, 14, btnSalir.getFont());
         if (btnSalirFont != null) btnSalir.setFont(btnSalirFont);
-        btnSalir.setForeground(new Color(-1));
+        btnSalir.setForeground(new Color(-1033));
         btnSalir.setText("Salir");
-        panel2.add(btnSalir, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
+        panel2.add(btnSalir, new GridConstraints(1, 0, 3, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
     }
 
     /**
@@ -122,4 +165,5 @@ public class MainAdmin extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return jpMainAdmin;
     }
+
 }

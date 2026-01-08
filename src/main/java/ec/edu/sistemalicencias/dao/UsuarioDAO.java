@@ -151,13 +151,12 @@ public class UsuarioDAO implements Persistible<Usuario> {
         }
     }
 
-    public List<Usuario> buscarPorUsername(String username) throws BaseDatosException {
-        String sql = "SELECT * FROM usuarios WHERE nombre = ?";
+    public Usuario buscarPorUsername(String username) throws BaseDatosException {
+        String sql = "SELECT * FROM usuarios WHERE username = ?";
 
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        List<Usuario> usuarios = new ArrayList<>();
 
         try {
             conn = dbConfig.obtenerConexion();
@@ -166,14 +165,14 @@ public class UsuarioDAO implements Persistible<Usuario> {
 
             rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                usuarios.add(mapearUsuario(rs));
+            if (rs.next()) {
+                return mapearUsuario(rs);
             }
 
-            return usuarios;
+            return null;
 
         } catch (SQLException e) {
-            throw new BaseDatosException("Error al buscar usuarios: " + e.getMessage(), e);
+            throw new BaseDatosException("Error al buscar usuario: " + e.getMessage(), e);
         } finally {
             cerrarRecursos(conn, stmt, rs);
         }

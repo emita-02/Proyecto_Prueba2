@@ -5,7 +5,6 @@ import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.BaseDatosException;
 import ec.edu.sistemalicencias.model.exceptions.DatosInvalidosException;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,53 +35,81 @@ public class UsuarioService{
                 throw new DatosInvalidosException("La contraseña es incorrecta.");
             }
 
+            if (!usuario.isActivo()){
+                throw new DatosInvalidosException("El usuario esta inactivo.");
+            }
+
             return usuario;
         } catch (BaseDatosException e){
             throw e;
         }
     }
 
-    public void crearAnalista(String username) throws DatosInvalidosException, BaseDatosException{
-        if (username == null || username.trim().isEmpty()){
-            throw new DatosInvalidosException("Debe ingresar un nombre de usuario.");
+    public void crearUsuario(Usuario usuario) throws DatosInvalidosException, BaseDatosException{
+        
+        if (usuario == null){
+            throw new DatosInvalidosException("El usuario no puede ser nulo.");
+        }
+        
+        if (usuario.getNombre() == null || usuario.getNombre().trim().isEmpty()){
+            throw new DatosInvalidosException("Debe ingresar el nombre.");
         }
 
+        if (usuario.getCedula() == null || usuario.getCedula().trim().isEmpty()){
+            throw new DatosInvalidosException("Llene el campo de cedula.");
+        }
+        //Validación para el número de digitos para cedula
+        if (!usuario.getCedula().matches("\\d{10}")){
+            throw new DatosInvalidosException("La cédula debe tener 10 dígitos");
+        }
+
+        if (usuario.getUsername() == null || usuario.getUsername().trim().isEmpty()){
+            throw new DatosInvalidosException("Debe colocar un nombre de usuario.");
+        }
+
+        if (usuario.getRol() == null || usuario.getRol().trim().isEmpty()){
+            throw new DatosInvalidosException("Seleccione un rol para el usuario.");
+        }
+
+        //Código para que no se repita el nombre de usuario con mayúsculas
+        usuario.setUsername(usuario.getUsername().trim().toLowerCase());
+
         try {
-            Usuario usuarioExistente = usuarioDAO.buscarPorUsername(username);
+            Usuario usuarioExistente = usuarioDAO.buscarPorUsername(usuario.getUsername());
 
             if (usuarioExistente != null){
                 throw new DatosInvalidosException("El usuario ya existe.");
             }
 
-            Usuario usuario = new Usuario();
-            usuario.setUsername(username);
             usuario.setPassword(generarPassword());
-            usuario.setRol("ANALISTA");
             usuario.setActivo(true);
 
             usuarioDAO.insertarUsuario(usuario);
-        } catch (SQLException e){
-            throw new BaseDatosException("Error al crear el usuario.");
+
+        } catch (BaseDatosException e){
+            throw e;
         }
     }
 
     public List<Usuario> listarUsuarios() throws BaseDatosException{
         try{
             return usuarioDAO.mostrarUsuarios();
-        } catch (SQLException e){
-            throw new BaseDatosException("Error al listar los usuarios analista.");
+        } catch (BaseDatosException e){
+            throw e;
         }
     }
 
     public void eliminarUsuario(Long id) throws BaseDatosException{
         try{
             usuarioDAO.eliminar(id);
-        } catch (SQLException e){
-            throw new BaseDatosException("Error al eliminar el usuario analista.");
+        } catch (BaseDatosException e){
+            throw e;
         }
     }
 
     private String generarPassword(){
+
         return UUID.randomUUID().toString().substring(0, 8);
     }
 }
+

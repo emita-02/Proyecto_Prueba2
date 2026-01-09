@@ -29,6 +29,7 @@ public class MainAdmin extends JFrame {
         setSize(600, 400);
         setLocationRelativeTo(null);
         initUI();
+        configurarEventos();
     }
 
     private void initUI() {
@@ -49,15 +50,16 @@ public class MainAdmin extends JFrame {
         //Botón de de Generar Reportes
         //btnGenerarReporte.addActionListener(e -> abrirGenerarReporte());
 
-        //Botón Salir
-        //btnSalir.addActionListener(e -> salirAplicacion());
+//        Botón Salir
+        btnSalir.addActionListener(e -> salirAplicacion());
     }
+
 
     //Abrir la ventana para Gestión de Usuarios
     private void abrirGestionUsuarios() {
         try {
-            GestionUsuarios gestionView = new GestionUsuarios(controller);
-            gestionView.setVisible(true);
+            GestionUsuarios vista = new GestionUsuarios();
+            vista.setVisible(true);
         } catch (Exception e) {
             mostrarError("Error al abrir Gestión de Usuarios: " + e.getMessage());
         }
@@ -73,6 +75,19 @@ public class MainAdmin extends JFrame {
 
 
      */
+    private void salirAplicacion() {
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea salir?",
+                "Confirmar salida",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+
 
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
@@ -132,9 +147,10 @@ public class MainAdmin extends JFrame {
         btnSalir.setBackground(new Color(-1769440));
         Font btnSalirFont = this.$$$getFont$$$("Arial", Font.BOLD, 14, btnSalir.getFont());
         if (btnSalirFont != null) btnSalir.setFont(btnSalirFont);
-        btnSalir.setForeground(new Color(-1033));
+        btnSalir.setForeground(new Color(-16383732));
+        btnSalir.setHideActionText(false);
         btnSalir.setText("Salir");
-        panel2.add(btnSalir, new GridConstraints(1, 0, 3, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
+        panel2.add(btnSalir, new GridConstraints(1, 0, 3, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
     }
 
     /**

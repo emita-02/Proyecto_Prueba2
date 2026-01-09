@@ -225,18 +225,21 @@ public class UsuarioDAO implements Persistible<Usuario> {
         }
     }
 
-    public Usuario mapearUsuario(ResultSet rs) throws SQLException{
-        Usuario u = new Usuario();
-        u.setId(rs.getLong("id"));
-        u.setNombre(rs.getString("nombre"));
-        u.setCedula(rs.getString("cedula"));
-        u.setUsername(rs.getString("username"));
-        u.setPassword(rs.getString("password"));
-        u.setRol(rs.getString("rol"));
-        u.setActivo(rs.getBoolean("activo"));
+    public Usuario mapearUsuario(ResultSet rs) throws SQLException {
 
+        Usuario u = new Usuario(
+                rs.getString("nombre"),
+                rs.getString("cedula"),
+                rs.getString("username"),
+                rs.getString("password"),
+                rs.getString("rol"),
+                rs.getBoolean("activo")
+        );
+
+        u.setId(rs.getLong("id"));
         return u;
     }
+
 
     public void cerrarRecursos(Connection conn, Statement stmt, ResultSet rs){
         try {

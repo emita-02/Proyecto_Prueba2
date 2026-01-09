@@ -60,7 +60,6 @@ public class Main {
                         "Versión 1.0\n\n" +
                         "Desarrollado con:\n" +
                         "- Java 21\n" +
-                        "- MySQL Database\n" +
                         "- Arquitectura MVC\n" +
                         "- iText PDF\n\n" +
                         "Iniciando sistema...",

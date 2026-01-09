@@ -111,5 +111,53 @@ public class UsuarioService{
 
         return UUID.randomUUID().toString().substring(0, 8);
     }
+
+
+    public void actualizarUsuario(Usuario usuario)
+            throws DatosInvalidosException, BaseDatosException {
+
+        if (usuario == null) {
+            throw new DatosInvalidosException("El usuario no puede ser nulo.");
+        }
+
+        if (usuario.getCedula() == null || usuario.getCedula().trim().isEmpty()) {
+            throw new DatosInvalidosException("La cédula es obligatoria.");
+        }
+
+        if (!usuario.getCedula().matches("\\d{10}")) {
+            throw new DatosInvalidosException("La cédula debe tener 10 dígitos.");
+        }
+
+        if (usuario.getRol() == null || usuario.getRol().trim().isEmpty()) {
+            throw new DatosInvalidosException("Debe seleccionar un rol.");
+        }
+
+        try {
+            usuarioDAO.actualizarUsuario(usuario);
+        } catch (BaseDatosException e) {
+            throw e;
+        }
+    }
+
+
+
+    public Usuario buscarPorCedula(String cedula)
+            throws DatosInvalidosException, BaseDatosException {
+
+        if (cedula == null || cedula.trim().isEmpty()) {
+            throw new DatosInvalidosException("Debe ingresar una cédula.");
+        }
+
+        if (!cedula.matches("\\d{10}")) {
+            throw new DatosInvalidosException("La cédula debe tener 10 dígitos.");
+        }
+
+        try {
+            return usuarioDAO.buscarPorCedula(cedula);
+        } catch (BaseDatosException e) {
+            throw e;
+        }
+    }
+
 }
 

@@ -9,7 +9,7 @@ public class Usuario {
     private String rol; //administrador o analista
     private boolean activo;
 
-    public Usuario() {
+    public Usuario(String text, String txtCedulaText, String txtUserNameText, String txtContraseñaText, String rol, String estado) {
     }
 
     public Usuario(Long id, String username, String password, String rol, boolean estado) {
@@ -19,6 +19,16 @@ public class Usuario {
         this.rol = rol;
         this.activo = estado;
     }
+    public Usuario(String nombre, String cedula, String username,
+                   String password, String rol, boolean activo) {
+        this.nombre = nombre;
+        this.cedula = cedula;
+        this.username = username;
+        this.password = password;
+        this.rol = rol;
+        this.activo = activo;
+    }
+
 
     public Long getId() {
         return id;

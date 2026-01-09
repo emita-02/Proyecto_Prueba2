@@ -5,6 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import ec.edu.sistemalicencias.controller.UsuarioController;
 import ec.edu.sistemalicencias.model.entities.Usuario;
+import ec.edu.sistemalicencias.util.PasswordUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -35,12 +36,13 @@ public class GestionUsuarios extends JFrame {
     private JLabel lblRol;
     private JLabel lblEstado;
     private JButton btnRegresar;
+    private JButton btnContraseña;
 
     private UsuarioController controller;
 
     //---Constructor---
     public GestionUsuarios() {
-        this.controller = controller;
+        this.controller = new UsuarioController();
 
         $$$setupUI$$$();
         setContentPane(panelFormulario.getParent());
@@ -60,6 +62,7 @@ public class GestionUsuarios extends JFrame {
         btnActualizar.addActionListener(e -> actualizarUsuario());
         btnLimpiar.addActionListener(e -> limpiarFormulario());
         btnRefrescar.addActionListener(e -> buscarOCargar());
+        btnContraseña.addActionListener(e -> generarPassword());
     }
 
     //Logica
@@ -103,6 +106,11 @@ public class GestionUsuarios extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Usuario no encontrado");
         }
+    }
+
+    private void generarPassword() {
+        String password = PasswordUtil.generar(8);
+        txtContraseña.setText(password);
     }
 
     // Auxiliares
@@ -154,7 +162,7 @@ public class GestionUsuarios extends JFrame {
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(6, 6, new Insets(0, 0, 0, 0), -1, -1));
         panelFormulario = new JPanel();
-        panelFormulario.setLayout(new GridLayoutManager(2, 4, new Insets(10, 10, 10, 10), -1, -1));
+        panelFormulario.setLayout(new GridLayoutManager(2, 5, new Insets(10, 10, 10, 10), -1, -1));
         panel1.add(panelFormulario, new GridConstraints(1, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         panelFormulario.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         lblNombre = new JLabel();
@@ -166,7 +174,7 @@ public class GestionUsuarios extends JFrame {
         lblCedula.setText("Cedula:");
         panelFormulario.add(lblCedula, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         txtCedula = new JTextField();
-        panelFormulario.add(txtCedula, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panelFormulario.add(txtCedula, new GridConstraints(0, 3, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         lblUserName = new JLabel();
         lblUserName.setText("UserName:");
         panelFormulario.add(lblUserName, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -176,7 +184,10 @@ public class GestionUsuarios extends JFrame {
         lblContraseña.setText("Contraseña:");
         panelFormulario.add(lblContraseña, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         txtContraseña = new JTextField();
-        panelFormulario.add(txtContraseña, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panelFormulario.add(txtContraseña, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        btnContraseña = new JButton();
+        btnContraseña.setText("»");
+        panelFormulario.add(btnContraseña, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(2, 5, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         lblTitulo = new JLabel();

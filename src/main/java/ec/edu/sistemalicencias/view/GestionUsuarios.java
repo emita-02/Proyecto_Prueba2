@@ -41,7 +41,7 @@ public class GestionUsuarios extends JFrame {
     private UsuarioController controller;
 
     //---Constructor---
-    public GestionUsuarios() {
+    public GestionUsuarios(UsuarioController controller) {
         this.controller = new UsuarioController();
 
         $$$setupUI$$$();

@@ -179,12 +179,13 @@ public class LicenciaService {
                     );
                 }
 
-                if (!"aprobado".equalsIgnoreCase(prueba.getEstado())) {
+                if (!prueba.estaAprobado()) {
                     throw new DocumentoInvalidoException(
                             "No se puede emitir licencia: prueba psicométrica no aprobada (Promedio: " +
                                     String.format("%.2f", prueba.getPromedio()) + ")"
                     );
                 }
+
 
                 pruebaPsicometricaId = prueba.getId();
 

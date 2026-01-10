@@ -93,7 +93,28 @@ public class TipoLicenciaConstantes {
      * @return true si es válido
      */
     public static boolean esValido(String tipo) {
+        tipo = normalizar(tipo);
+
         return TIPO_A.equals(tipo) || TIPO_B.equals(tipo) || TIPO_C.equals(tipo) ||
                 TIPO_D.equals(tipo) || TIPO_E.equals(tipo) || TIPO_F.equals(tipo);
     }
+    public static String normalizar(String tipo) {
+        if (tipo == null) return null;
+
+        tipo = tipo.trim().toUpperCase();
+
+        // "A" → "TIPO_A"
+        if (tipo.length() == 1) {
+            return "TIPO_" + tipo;
+        }
+
+        // "Tipo A - ..." → "TIPO_A"
+        if (tipo.startsWith("TIPO ")) {
+            return "TIPO_" + tipo.charAt(5);
+        }
+
+        return tipo;
+    }
+
+
 }

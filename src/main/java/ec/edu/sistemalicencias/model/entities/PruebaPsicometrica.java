@@ -232,11 +232,9 @@ public class PruebaPsicometrica {
                 '}';
     }
 
-    public String getEstado() {
-        return estado;
+
+    public double getPromedio() {
+        return calcularPromedio();
     }
 
-    public Object getPromedio() {
-        return promedio;
-    }
 }

@@ -45,8 +45,9 @@ public class UsuarioService{
         }
     }
 
-    public void crearUsuario(Usuario usuario) throws DatosInvalidosException, BaseDatosException{
-        
+    public void guardarUsuario(Usuario usuario) throws DatosInvalidosException, BaseDatosException{
+
+        //Validaciones para la creacion o actualizacion de un usuario
         if (usuario == null){
             throw new DatosInvalidosException("El usuario no puede ser nulo.");
         }
@@ -56,7 +57,7 @@ public class UsuarioService{
         }
 
         if (usuario.getCedula() == null || usuario.getCedula().trim().isEmpty()){
-            throw new DatosInvalidosException("Llene el campo de cedula.");
+            throw new DatosInvalidosException("Debe ingresar el número de cedula.");
         }
         //Validación para el número de digitos para cedula
         if (!usuario.getCedula().matches("\\d{10}")){
@@ -77,12 +78,21 @@ public class UsuarioService{
         try {
             Usuario usuarioExistente = usuarioDAO.buscarPorUsername(usuario.getUsername());
 
-            if (usuarioExistente != null){
-                throw new DatosInvalidosException("El usuario ya existe.");
-            }
+            //Si el numero de ID es nulo se crea un nuevo usuario
+            if (usuario.getId() == null){
+                if (usuarioExistente != null){
+                    throw new DatosInvalidosException("El usuario ya existe.");
+                }
 
-            usuario.setPassword(generarPassword());
-            usuario.setActivo(true);
+                usuario.setPassword(generarPassword());
+                usuario.setActivo(true);
+
+            //Si se actualiza algun dato de los usuarios registrados
+            } else {
+                if (usuarioExistente != null && !usuarioExistente.getId().equals(usuario.getId())){
+                    throw new DatosInvalidosException("El nombre de usuario ya existe.");
+                }
+            }
 
             usuarioDAO.insertarUsuario(usuario);
 
@@ -111,35 +121,6 @@ public class UsuarioService{
 
         return UUID.randomUUID().toString().substring(0, 8);
     }
-
-
-    public void actualizarUsuario(Usuario usuario)
-            throws DatosInvalidosException, BaseDatosException {
-
-        if (usuario == null) {
-            throw new DatosInvalidosException("El usuario no puede ser nulo.");
-        }
-
-        if (usuario.getCedula() == null || usuario.getCedula().trim().isEmpty()) {
-            throw new DatosInvalidosException("La cédula es obligatoria.");
-        }
-
-        if (!usuario.getCedula().matches("\\d{10}")) {
-            throw new DatosInvalidosException("La cédula debe tener 10 dígitos.");
-        }
-
-        if (usuario.getRol() == null || usuario.getRol().trim().isEmpty()) {
-            throw new DatosInvalidosException("Debe seleccionar un rol.");
-        }
-
-        try {
-            usuarioDAO.actualizarUsuario(usuario);
-        } catch (BaseDatosException e) {
-            throw e;
-        }
-    }
-
-
 
     public Usuario buscarPorCedula(String cedula)
             throws DatosInvalidosException, BaseDatosException {

@@ -10,6 +10,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.util.IllegalFormatCodePointException;
 import java.util.Locale;
 
 public class MainAdmin extends JFrame {
@@ -26,7 +27,7 @@ public class MainAdmin extends JFrame {
         this.controller = new UsuarioController();
 
         setTitle("Panel Administrador");
-        setSize(600, 400);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         initUI();
         configurarEventos();
@@ -50,22 +51,21 @@ public class MainAdmin extends JFrame {
         //Botón de de Generar Reportes
         //btnGenerarReporte.addActionListener(e -> abrirGenerarReporte());
 
-//        Botón Salir
-        btnSalir.addActionListener(e -> salirAplicacion());
+        //Botón Salir
+        //btnSalir.addActionListener(e -> cerrarSesion());
     }
-
 
     //Abrir la ventana para Gestión de Usuarios
     private void abrirGestionUsuarios() {
         try {
-            GestionUsuarios vista = new GestionUsuarios();
-            vista.setVisible(true);
+            GestionUsuarios gestionView = new GestionUsuarios(controller);
+            gestionView.setVisible(true);
         } catch (Exception e) {
             mostrarError("Error al abrir Gestión de Usuarios: " + e.getMessage());
         }
     }
 
-    //Abrir la ventana para Generar Reportes
+    //Generar Reporte de usuarios
     /*
     private void abrirGenerarReporte() {
         try {
@@ -73,21 +73,22 @@ public class MainAdmin extends JFrame {
         }
     }
 
-
      */
-    private void salirAplicacion() {
+
+    //Se cierra la sesión como administrador
+    private void cerrarSesion() {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
-                "¿Está seguro que desea salir?",
-                "Confirmar salida",
-                JOptionPane.YES_NO_OPTION
+                "¿Está seguro que desea cerrar sesión?",
+                "Confirmar Cierre de Sesión",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
         );
 
         if (opcion == JOptionPane.YES_OPTION) {
-            System.exit(0);
+            System.out.println(0);
         }
     }
-
 
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(

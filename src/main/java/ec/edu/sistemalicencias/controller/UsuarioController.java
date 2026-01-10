@@ -6,6 +6,7 @@ import ec.edu.sistemalicencias.service.UsuarioService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.util.List;
 
 public class UsuarioController {
@@ -16,11 +17,11 @@ public class UsuarioController {
         this.usuarioService = new UsuarioService();
     }
 
-    //Crear usuario
+    // ----------CRUD del sistema para el usuario Administrador ------------------
     public void crearUsuario(Usuario usuario) {
         try {
-            usuarioService.crearUsuario(usuario);
-            mostrarExito("Usuario creado correctamente");
+            usuarioService.guardarUsuario(usuario);
+            mostrarExito("Usuario creado correctamente.");
         } catch (DatosInvalidosException e) {
             mostrarError(e.getMessage());
         } catch (Exception e) {
@@ -28,11 +29,11 @@ public class UsuarioController {
         }
     }
 
-    // ================= ACTUALIZAR =================
+    // Actualizar usuario
     public void actualizarUsuario(Usuario usuario) {
         try {
-            usuarioService.actualizarUsuario(usuario);
-            mostrarExito("Usuario actualizado correctamente");
+            usuarioService.guardarUsuario(usuario);
+            mostrarExito("Usuario actualizado correctamente.");
         } catch (DatosInvalidosException e) {
             mostrarError(e.getMessage());
         } catch (Exception e) {
@@ -40,13 +41,29 @@ public class UsuarioController {
         }
     }
 
-    // ================= CARGAR TABLA =================
-    public DefaultTableModel cargarTabla() {
+    // Listar todos los usuarios
+    public List<Usuario> obtenerUsuarios() {
+        try {
+            return usuarioService.listarUsuarios();
+        } catch (Exception e) {
+            mostrarError("Error al obtener usuarios.");
+            return null;
+        }
+    }
 
-        String[] columnas = {
-                "ID", "Nombre", "Cédula", "Usuario", "Rol", "Estado"
-        };
+    // Eliminar usuario
+    public void eliminarUsuario(Long id) {
+        try {
+            usuarioService.eliminarUsuario(id);
+            mostrarExito("Usuario eliminado correctamente.");
+        } catch (Exception e) {
+            mostrarError("Error al eliminar usuario.");
+        }
+    }
 
+    //-------------------- Controlador de la tabla ------------------------
+    public TableModel cargarTabla() {
+        String[] columnas = {"ID", "Nombre", "Cédula", "Usuario", "Rol", "Estado"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
 
         try {
@@ -62,7 +79,6 @@ public class UsuarioController {
                         u.isActivo() ? "ACTIVO" : "DESACTIVADO"
                 });
             }
-
         } catch (Exception e) {
             mostrarError("Error al cargar la tabla");
         }
@@ -70,13 +86,8 @@ public class UsuarioController {
         return modelo;
     }
 
-    // Buscar por cedula
-    public DefaultTableModel buscarPorCedula(String cedula) {
-
-        String[] columnas = {
-                "ID", "Nombre", "Cédula", "Usuario", "Rol", "Estado"
-        };
-
+    public TableModel buscarPorCedula(String cedula) {
+        String[] columnas = {"ID", "Nombre", "Cédula", "Usuario", "Rol", "Estado"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
 
         try {
@@ -96,28 +107,25 @@ public class UsuarioController {
             }
 
         } catch (Exception e) {
-            mostrarError("Error al buscar usuario");
+            mostrarError(e.getMessage());
         }
 
         return modelo;
     }
 
-    // Eliminar
-    public void eliminarUsuario(Long id) {
-        try {
-            usuarioService.eliminarUsuario(id);
-            mostrarExito("Usuario eliminado correctamente");
-        } catch (Exception e) {
-            mostrarError("Error al eliminar usuario");
-        }
-    }
 
+    // ------------Metodos Utiles---------------
     private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     private void mostrarExito(String mensaje) {
-        JOptionPane.showMessageDialog(null, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null,
+                mensaje,
+                "Éxito",
+                JOptionPane.INFORMATION_MESSAGE);
     }
-
 }

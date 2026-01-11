@@ -9,7 +9,7 @@ public class Usuario {
     private String rol; //administrador o analista
     private boolean activo;
 
-    public Usuario(String text, String txtCedulaText, String txtUserNameText, String txtContraseñaText, String rol, String estado) {
+    public Usuario() {
     }
 
     public Usuario(Long id, String username, String password, String rol, boolean estado) {

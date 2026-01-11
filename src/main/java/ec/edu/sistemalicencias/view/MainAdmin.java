@@ -2,7 +2,6 @@ package ec.edu.sistemalicencias.view;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import ec.edu.sistemalicencias.controller.UsuarioController;
 
 import javax.swing.*;
@@ -10,7 +9,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
-import java.util.IllegalFormatCodePointException;
 import java.util.Locale;
 
 public class MainAdmin extends JFrame {
@@ -29,16 +27,14 @@ public class MainAdmin extends JFrame {
         setTitle("Panel Administrador");
         setSize(800, 600);
         setLocationRelativeTo(null);
-        initUI();
+        setContentPane(jpMainAdmin);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         configurarEventos();
     }
 
-    private void initUI() {
-        setContentPane(jpMainAdmin);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
 
-    // Getters si luego usas controlador
+    // Getters si luego para usar el controlador
     public JButton getBtnSalir() {
         return btnSalir;
     }
@@ -52,7 +48,7 @@ public class MainAdmin extends JFrame {
         //btnGenerarReporte.addActionListener(e -> abrirGenerarReporte());
 
         //Botón Salir
-        //btnSalir.addActionListener(e -> cerrarSesion());
+        btnSalir.addActionListener(e -> cerrarSesion());
     }
 
     //Abrir la ventana para Gestión de Usuarios
@@ -79,8 +75,8 @@ public class MainAdmin extends JFrame {
     private void cerrarSesion() {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
-                "¿Está seguro que desea cerrar sesión?",
-                "Confirmar Cierre de Sesión",
+                "¿Está seguro que desea salir del sistema?",
+                "Confirmar Salida",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );

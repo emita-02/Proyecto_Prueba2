@@ -122,6 +122,8 @@ public class UsuarioService{
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
+
+    //Buscar usuarios por Cedula
     public Usuario buscarPorCedula(String cedula)
             throws DatosInvalidosException, BaseDatosException {
 
@@ -137,6 +139,15 @@ public class UsuarioService{
             return usuarioDAO.buscarPorCedula(cedula);
         } catch (BaseDatosException e) {
             throw e;
+        }
+    }
+
+    //Buscar usuario por id
+    public Usuario buscarUsuarioId(Long id){
+        try {
+            return usuarioDAO.buscarPorId(id);
+        } catch (BaseDatosException e){
+            throw new DatosInvalidosException("Error al buscar usuario.", e);
         }
     }
 

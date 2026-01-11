@@ -5,27 +5,33 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import ec.edu.sistemalicencias.controller.UsuarioController;
 import ec.edu.sistemalicencias.model.entities.Usuario;
+import ec.edu.sistemalicencias.model.exceptions.DatosInvalidosException;
 import ec.edu.sistemalicencias.util.PasswordUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 
 public class GestionUsuarios extends JFrame {
+
+    private JPanel panelAdmin;
+    private JPanel panelBotones;
+    private JPanel paneBusqueda;
     private JPanel panelFormulario;
     private JTextField txtCedula;
     private JTextField txtContraseña;
-    private JTable table1;
-    private JButton btnRefrescar;
+    private JTable tablaUsuarios;
+    private JButton btnBuscar;
     private JTextField txtCEDULA;
     private JCheckBox cbAdmin;
     private JCheckBox cbAnalista;
     private JCheckBox cbActivo;
-    private JCheckBox cbDesactivado;
+    private JCheckBox cbInactivo;
     private JButton btnCrear;
     private JButton btnActualizar;
     private JButton btnLimpiar;
-    private JLabel lblTitulo;
     private JLabel lblNombre;
     private JLabel lblUserName;
     private JLabel lblCedula;
@@ -38,34 +44,50 @@ public class GestionUsuarios extends JFrame {
     private JButton btnRegresar;
     private JButton btnContraseña;
 
-    private UsuarioController controller;
 
-    //---Constructor---
+    private UsuarioController controller;
+    private Usuario usuarioSeleccionado;
+    private ButtonGroup grupoRol;
+    private ButtonGroup grupoEstado;
+
+    //-------- Constructor de la Vista ---------
     public GestionUsuarios(UsuarioController controller) {
-        this.controller = new UsuarioController();
+        this.controller = controller;
 
         $$$setupUI$$$();
-        setContentPane(panelFormulario.getParent());
         setTitle("Gestión de Usuarios");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
+        setContentPane(panelAdmin);
+        setSize(900, 600);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        pack();
 
         configurarGrupos();
         eventos();
         cargarTabla();
     }
 
-    // ---Eventos---
+    // ------- Configuracion de los Eventos de los componentes---
     private void eventos() {
         btnCrear.addActionListener(e -> crearUsuario());
         btnActualizar.addActionListener(e -> actualizarUsuario());
         btnLimpiar.addActionListener(e -> limpiarFormulario());
-        btnRefrescar.addActionListener(e -> buscarOCargar());
+        btnBuscar.addActionListener(e -> buscarOCargar());
         btnContraseña.addActionListener(e -> generarPassword());
+        btnRegresar.addActionListener(e -> dispose());
+
+        //Seleccionar el usuario en la tabla para modificarlo
+        tablaUsuarios.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int filaSeleccionada = tablaUsuarios.getSelectedRow();
+                if (filaSeleccionada >= 0) {
+                    cargarUsuario(filaSeleccionada);
+                }
+            }
+        });
     }
 
-    //Logica
+    // ---------- LOGICA -----------
     private void crearUsuario() {
         try {
             controller.crearUsuario(obtenerDatos());
@@ -89,7 +111,7 @@ public class GestionUsuarios extends JFrame {
 
     private void cargarTabla() {
         try {
-            table1.setModel(controller.cargarTabla());
+            tablaUsuarios.setModel(controller.cargarTabla());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
@@ -101,7 +123,7 @@ public class GestionUsuarios extends JFrame {
             if (cedula.isEmpty()) {
                 cargarTabla();
             } else {
-                table1.setModel(controller.buscarPorCedula(cedula));
+                tablaUsuarios.setModel(controller.cargarTabla());
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Usuario no encontrado");
@@ -115,41 +137,78 @@ public class GestionUsuarios extends JFrame {
 
     // Auxiliares
     private Usuario obtenerDatos() {
+        Usuario u;
 
-        String rol = cbAdmin.isSelected() ? "ADMIN" : "ANALISTA";
-        boolean activo = cbActivo.isSelected();
+        if (usuarioSeleccionado != null) {
+            u = usuarioSeleccionado; //Actualizar usuario
+        } else {
+            u = new Usuario(); // Crear Usuario
+        }
 
-        return new Usuario(
-                txtNombre.getText(),
-                txtCedula.getText(),
-                txtUserName.getText(),
-                txtContraseña.getText(),
-                rol,
-                activo
-        );
+        u.setNombre(txtNombre.getText());
+        u.setCedula(txtCedula.getText());
+        u.setUsername(txtUserName.getText());
+        if (!txtContraseña.getText().trim().isEmpty()) {
+            u.setPassword(txtContraseña.getText());
+        }
+
+        if (cbAdmin.isSelected()) {
+            u.setRol("ADMINISTRADOR");
+        } else {
+            u.setRol("ANALISTA");
+        }
+
+        u.setActivo(cbActivo.isSelected());
+
+        return u;
     }
 
     private void limpiarFormulario() {
+        usuarioSeleccionado = null;
+
         txtNombre.setText("");
         txtCedula.setText("");
         txtUserName.setText("");
         txtContraseña.setText("");
-        cbAdmin.setSelected(false);
-        cbAnalista.setSelected(false);
-        cbActivo.setSelected(false);
-        cbDesactivado.setSelected(false);
+        grupoRol.clearSelection();
+        grupoEstado.clearSelection();
+
+        tablaUsuarios.clearSelection();
     }
 
     private void configurarGrupos() {
-        ButtonGroup grupoRol = new ButtonGroup();
+        grupoRol = new ButtonGroup();
         grupoRol.add(cbAdmin);
         grupoRol.add(cbAnalista);
 
-        ButtonGroup grupoEstado = new ButtonGroup();
+        grupoEstado = new ButtonGroup();
         grupoEstado.add(cbActivo);
-        grupoEstado.add(cbDesactivado);
+        grupoEstado.add(cbInactivo);
     }
 
+    private void cargarUsuario(int fila) {
+        try {
+            TableModel modelo = tablaUsuarios.getModel();
+            Long id = (Long) modelo.getValueAt(fila, 0);
+            usuarioSeleccionado = controller.buscarUsuarioId(id);
+
+            if (usuarioSeleccionado != null) {
+                txtCedula.setText(usuarioSeleccionado.getCedula());
+                txtNombre.setText(usuarioSeleccionado.getNombre());
+                txtUserName.setText(usuarioSeleccionado.getUsername());
+                //Seleccionar rol
+                String rol = usuarioSeleccionado.getRol();
+                cbAdmin.setSelected("ADMINISTRADOR".equalsIgnoreCase(rol));
+                cbAnalista.setSelected("ANALISTA".equalsIgnoreCase(rol));
+                //Seleccionar estado
+                boolean activo = usuarioSeleccionado.isActivo();
+                cbActivo.setSelected(activo);
+                cbInactivo.setSelected(!activo);
+            }
+        } catch (DatosInvalidosException e) {
+            controller.mostrarError("Error al cargar datos del usuario: " + e.getMessage());
+        }
+    }
 
     /**
      * Method generated by IntelliJ IDEA GUI Designer
@@ -159,25 +218,19 @@ public class GestionUsuarios extends JFrame {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(6, 6, new Insets(0, 0, 0, 0), -1, -1));
+        panelAdmin = new JPanel();
+        panelAdmin.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
         panelFormulario = new JPanel();
-        panelFormulario.setLayout(new GridLayoutManager(2, 5, new Insets(10, 10, 10, 10), -1, -1));
-        panel1.add(panelFormulario, new GridConstraints(1, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
-        panelFormulario.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panelFormulario.setLayout(new GridLayoutManager(4, 5, new Insets(10, 10, 10, 10), -1, -1));
+        panelAdmin.add(panelFormulario, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
+        panelFormulario.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Datos de Usuario", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         lblNombre = new JLabel();
         lblNombre.setText("Nombre:");
         panelFormulario.add(lblNombre, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         txtNombre = new JTextField();
         panelFormulario.add(txtNombre, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        lblCedula = new JLabel();
-        lblCedula.setText("Cedula:");
-        panelFormulario.add(lblCedula, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         txtCedula = new JTextField();
-        panelFormulario.add(txtCedula, new GridConstraints(0, 3, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        lblUserName = new JLabel();
-        lblUserName.setText("UserName:");
-        panelFormulario.add(lblUserName, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelFormulario.add(txtCedula, new GridConstraints(0, 3, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         txtUserName = new JTextField();
         panelFormulario.add(txtUserName, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         lblContraseña = new JLabel();
@@ -186,54 +239,73 @@ public class GestionUsuarios extends JFrame {
         txtContraseña = new JTextField();
         panelFormulario.add(txtContraseña, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         btnContraseña = new JButton();
-        btnContraseña.setText("»");
+        btnContraseña.setText("Generar Contraseña");
         panelFormulario.add(btnContraseña, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer1 = new Spacer();
-        panel1.add(spacer1, new GridConstraints(2, 5, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        lblTitulo = new JLabel();
-        lblTitulo.setText("SISTEMA DE GESTION DE USUARIOS-ADMINISTRADOR");
-        panel1.add(lblTitulo, new GridConstraints(0, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JScrollPane scrollPane1 = new JScrollPane();
-        panel1.add(scrollPane1, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        table1 = new JTable();
-        scrollPane1.setViewportView(table1);
-        lblCEDULA = new JLabel();
-        lblCEDULA.setText("\uD83D\uDD0E  CEDULA:");
-        panel1.add(lblCEDULA, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        btnRefrescar = new JButton();
-        btnRefrescar.setText("⟳");
-        panel1.add(btnRefrescar, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        txtCEDULA = new JTextField();
-        panel1.add(txtCEDULA, new GridConstraints(2, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         lblRol = new JLabel();
         lblRol.setText("Rol:");
-        panel1.add(lblRol, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelFormulario.add(lblRol, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbAdmin = new JCheckBox();
-        cbAdmin.setText("ADMIN");
-        panel1.add(cbAdmin, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cbAdmin.setText("ADMINISTRADOR");
+        panelFormulario.add(cbAdmin, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbAnalista = new JCheckBox();
         cbAnalista.setText("ANALISTA");
-        panel1.add(cbAnalista, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelFormulario.add(cbAnalista, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         lblEstado = new JLabel();
         lblEstado.setText("Estado:");
-        panel1.add(lblEstado, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelFormulario.add(lblEstado, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbActivo = new JCheckBox();
         cbActivo.setText("ACTIVO");
-        panel1.add(cbActivo, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        cbDesactivado = new JCheckBox();
-        cbDesactivado.setText("DESACTIVADO");
-        panel1.add(cbDesactivado, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelFormulario.add(cbActivo, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cbInactivo = new JCheckBox();
+        cbInactivo.setText("INACTIVO");
+        panelFormulario.add(cbInactivo, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lblCedula = new JLabel();
+        lblCedula.setText("Cedula:");
+        panelFormulario.add(lblCedula, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lblUserName = new JLabel();
+        lblUserName.setText("UserName:");
+        panelFormulario.add(lblUserName, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        panelAdmin.add(scrollPane1, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        scrollPane1.setBorder(BorderFactory.createTitledBorder(null, "Usuarios Registrados", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        tablaUsuarios = new JTable();
+        scrollPane1.setViewportView(tablaUsuarios);
+        panelBotones = new JPanel();
+        panelBotones.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
+        panelAdmin.add(panelBotones, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         btnCrear = new JButton();
         btnCrear.setText("Crear");
-        panel1.add(btnCrear, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelBotones.add(btnCrear, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnActualizar = new JButton();
         btnActualizar.setText("Actualizar");
-        panel1.add(btnActualizar, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelBotones.add(btnActualizar, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnLimpiar = new JButton();
         btnLimpiar.setText("Limpiar");
-        panel1.add(btnLimpiar, new GridConstraints(4, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelBotones.add(btnLimpiar, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnRegresar = new JButton();
         btnRegresar.setText("Regresar");
-        panel1.add(btnRegresar, new GridConstraints(5, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panelBotones.add(btnRegresar, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        paneBusqueda = new JPanel();
+        paneBusqueda.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
+        panelAdmin.add(paneBusqueda, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        btnBuscar = new JButton();
+        btnBuscar.setText("Buscar");
+        paneBusqueda.add(btnBuscar, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        paneBusqueda.add(spacer1, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        txtCEDULA = new JTextField();
+        paneBusqueda.add(txtCEDULA, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        lblCEDULA = new JLabel();
+        lblCEDULA.setText("\uD83D\uDD0E  CEDULA:");
+        paneBusqueda.add(lblCEDULA, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        paneBusqueda.add(spacer2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panelAdmin;
     }
 }

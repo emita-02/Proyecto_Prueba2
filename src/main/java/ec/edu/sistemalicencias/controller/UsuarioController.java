@@ -86,6 +86,7 @@ public class UsuarioController {
         return modelo;
     }
 
+    //-------- METODOS PARA BUSCAR USUARIO -----------
     public TableModel buscarPorCedula(String cedula) {
         String[] columnas = {"ID", "Nombre", "Cédula", "Usuario", "Rol", "Estado"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
@@ -113,9 +114,14 @@ public class UsuarioController {
         return modelo;
     }
 
+    // Buscar usuario por el id
+    public Usuario buscarUsuarioId(Long id){
+        return usuarioService.buscarUsuarioId(id);
+    }
+
 
     // ------------Metodos Utiles---------------
-    private void mostrarError(String mensaje) {
+    public void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(null,
                 mensaje,
                 "Error",

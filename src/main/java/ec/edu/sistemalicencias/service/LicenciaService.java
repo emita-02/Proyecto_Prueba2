@@ -171,7 +171,7 @@ public class LicenciaService {
 
             // 3. Verificar prueba psicométrica si se proporcionó
             if (pruebaPsicometricaId != null) {
-                PruebaPsicometrica prueba = pruebaPsicometricaDAO.buscarPorId(conductorId);
+                PruebaPsicometrica prueba = pruebaPsicometricaDAO.buscarPorId(pruebaPsicometricaId);
 
                 if (prueba == null) {
                     throw new DocumentoInvalidoException(
@@ -185,10 +185,6 @@ public class LicenciaService {
                                     String.format("%.2f", prueba.getPromedio()) + ")"
                     );
                 }
-
-
-                pruebaPsicometricaId = prueba.getId();
-
             }
 
             // 4. Verificar que no tenga licencias vigentes del mismo tipo
@@ -218,6 +214,7 @@ public class LicenciaService {
         } catch (DocumentoInvalidoException e) {
             throw e;
         } catch (BaseDatosException e) {
+            e.printStackTrace(); // TEMPORAL
             throw new LicenciaException("Error al emitir licencia", e);
         }
     }

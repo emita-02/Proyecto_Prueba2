@@ -33,7 +33,7 @@ public class DatabaseConfig {
         this.driver = "com.mysql.cj.jdbc.Driver";
         this.url = "jdbc:mysql://localhost:3306/sistema_licencias?useSSL=false&serverTimezone=UTC";
         this.usuario = "root";
-        this.password = "12345";
+        this.password = "1234";
 
         try {
             // Cargar el driver JDBC

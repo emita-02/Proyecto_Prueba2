@@ -36,7 +36,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         }
 
         String sql = "INSERT INTO pruebas_psicometricas (" +
-                "conductor_id, fecha_realizacion, nota_reaccion, nota_atencion, " +
+                "conductor_id, fecha_prueba, nota_reaccion, nota_atencion, " +
                 "nota_coordinacion, nota_percepcion, nota_psicologica, observaciones) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -44,7 +44,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setLong(1, prueba.getConductorId());
-            stmt.setTimestamp(2, Timestamp.valueOf(prueba.getFechaRealizacion()));
+            stmt.setDate(2, Date.valueOf(prueba.getFechaRealizacion().toLocalDate()));
             stmt.setDouble(3, prueba.getNotaReaccion());
             stmt.setDouble(4, prueba.getNotaAtencion());
             stmt.setDouble(5, prueba.getNotaCoordinacion());
@@ -126,7 +126,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
     public List<PruebaPsicometrica> buscarPorConductor(Long conductorId) throws BaseDatosException {
 
         String sql = "SELECT * FROM pruebas_psicometricas " +
-                "WHERE conductor_id = ? ORDER BY fecha_realizacion DESC";
+                "WHERE conductor_id = ? ORDER BY fecha_prueba DESC";
 
         List<PruebaPsicometrica> lista = new ArrayList<>();
 
@@ -152,7 +152,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
 
         String sql = "SELECT * FROM pruebas_psicometricas " +
                 "WHERE conductor_id = ? " +
-                "ORDER BY fecha_realizacion DESC LIMIT 1";
+                "ORDER BY fecha_prueba DESC LIMIT 1";
 
         try (Connection conn = dbConfig.obtenerConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -163,7 +163,6 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
                 if (rs.next()) {
                     PruebaPsicometrica prueba = mapear(rs);
 
-                    // ✅ VALIDACIÓN CORRECTA
                     if (prueba.estaAprobado()) {
                         return prueba;
                     }
@@ -212,9 +211,9 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         p.setNotaPsicologica(rs.getDouble("nota_psicologica"));
         p.setObservaciones(rs.getString("observaciones"));
 
-        Timestamp ts = rs.getTimestamp("fecha_realizacion");
-        if (ts != null) {
-            p.setFechaRealizacion(ts.toLocalDateTime());
+        Date date = rs.getDate("fecha_prueba");
+        if (date != null) {
+            p.setFechaRealizacion(date.toLocalDate().atStartOfDay());
         }
 
         return p;

@@ -51,7 +51,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
      * @throws BaseDatosException Si ocurre un error
      */
     private Long insertar(Licencia licencia) throws BaseDatosException {
-        String sql = "INSERT INTO licencias (numero_licencia, conductor_id, tipo_licencia, " +
+        String sql = "INSERT INTO licencias (conductor_id, numero_licencia, tipo_licencia, " +
                 "fecha_emision, fecha_vencimiento, activa, prueba_psicometrica_id, observaciones) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -63,8 +63,8 @@ public class LicenciaDAO implements Persistible<Licencia> {
             conn = dbConfig.obtenerConexion();
             stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            stmt.setString(1, licencia.getNumeroLicencia());
-            stmt.setLong(2, licencia.getConductorId());
+            stmt.setLong(1, licencia.getConductorId());
+            stmt.setString(2, licencia.getNumeroLicencia());
             stmt.setString(3, licencia.getTipoLicencia());
             stmt.setDate(4, Date.valueOf(licencia.getFechaEmision()));
             stmt.setDate(5, Date.valueOf(licencia.getFechaVencimiento()));
@@ -104,7 +104,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
      * @throws BaseDatosException Si ocurre un error
      */
     private void actualizar(Licencia licencia) throws BaseDatosException {
-        String sql = "UPDATE licencias SET numero_licencia = ?, conductor_id = ?, " +
+        String sql = "UPDATE licencias SET conductor_id = ?, numero_licencia = ?," +
                 "tipo_licencia = ?, fecha_emision = ?, fecha_vencimiento = ?, " +
                 "activa = ?, prueba_psicometrica_id = ?, observaciones = ? WHERE id = ?";
 
@@ -115,8 +115,8 @@ public class LicenciaDAO implements Persistible<Licencia> {
             conn = dbConfig.obtenerConexion();
             stmt = conn.prepareStatement(sql);
 
-            stmt.setString(1, licencia.getNumeroLicencia());
-            stmt.setLong(2, licencia.getConductorId());
+            stmt.setLong(1, licencia.getConductorId());
+            stmt.setString(2, licencia.getNumeroLicencia());
             stmt.setString(3, licencia.getTipoLicencia());
             stmt.setDate(4, Date.valueOf(licencia.getFechaEmision()));
             stmt.setDate(5, Date.valueOf(licencia.getFechaVencimiento()));

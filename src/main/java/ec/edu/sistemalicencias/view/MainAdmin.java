@@ -3,13 +3,18 @@ package ec.edu.sistemalicencias.view;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import ec.edu.sistemalicencias.controller.UsuarioController;
+import ec.edu.sistemalicencias.model.entities.Usuario;
+import ec.edu.sistemalicencias.util.PDFGenerator;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.io.File;
+import java.time.LocalDate;
 import java.util.Locale;
+import java.util.List;
 
 public class MainAdmin extends JFrame {
     private JButton btnGestionUsuarios;
@@ -25,7 +30,7 @@ public class MainAdmin extends JFrame {
         this.controller = new UsuarioController();
 
         setTitle("Panel Administrador");
-        setSize(800, 600);
+        setSize(800, 400);
         setLocationRelativeTo(null);
         setContentPane(jpMainAdmin);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,7 +50,7 @@ public class MainAdmin extends JFrame {
         btnGestionUsuarios.addActionListener(e -> abrirGestionUsuarios());
 
         //Botón de de Generar Reportes
-        //btnGenerarReporte.addActionListener(e -> abrirGenerarReporte());
+        btnGenerarReporte.addActionListener(e -> abrirGenerarReporte());
 
         //Botón Salir
         btnSalir.addActionListener(e -> cerrarSesion());
@@ -62,14 +67,52 @@ public class MainAdmin extends JFrame {
     }
 
     //Generar Reporte de usuarios
-    /*
     private void abrirGenerarReporte() {
         try {
+            //Obtener todos los usarios
+            List<Usuario> lista = controller.obtenerUsuarios();
 
+            if (lista == null || lista.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No existen usuarios registrados");
+                return;
+            }
+
+            //Seleccionar ubicacion para guardar
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Guardar Reporte de Usarios.");
+            fileChooser.setSelectedFile(new File("Reporte_Usuarios" + LocalDate.now() + ".pdf"));
+
+            int resultado = fileChooser.showSaveDialog(this);
+            if (resultado == JFileChooser.APPROVE_OPTION) {
+                String rutaArchivo = fileChooser.getSelectedFile().getAbsolutePath();
+
+                // Hacer que el archivo sea tipo PDF
+                if (!rutaArchivo.toLowerCase().endsWith(".pdf")) {
+                    rutaArchivo += ".pdf";
+                }
+
+                //Generar el documento PDF
+                PDFGenerator.generarReporteUsuariosPDF(lista, rutaArchivo);
+
+                JOptionPane.showMessageDialog(this, "Reporte PDF generado correctamente:\n" + rutaArchivo);
+
+                int abrir = JOptionPane.showConfirmDialog(
+                        this,
+                        "¿Desea abrir el documento generado?",
+                        "Abrir PDF",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (abrir == JOptionPane.YES_OPTION) {
+                    Desktop.getDesktop().open(new File(rutaArchivo));
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al generar PDF:\n" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-     */
 
     //Se cierra la sesión como administrador
     private void cerrarSesion() {
@@ -82,7 +125,7 @@ public class MainAdmin extends JFrame {
         );
 
         if (opcion == JOptionPane.YES_OPTION) {
-            System.out.println(0);
+            System.exit(0);
         }
     }
 
@@ -111,10 +154,10 @@ public class MainAdmin extends JFrame {
      */
     private void $$$setupUI$$$() {
         jpMainAdmin = new JPanel();
-        jpMainAdmin.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+        jpMainAdmin.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 20, 0), -1, -1));
-        jpMainAdmin.add(panel1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
+        jpMainAdmin.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         lblTitulo1 = new JLabel();
         Font lblTitulo1Font = this.$$$getFont$$$("Arial", Font.BOLD, 24, lblTitulo1.getFont());
         if (lblTitulo1Font != null) lblTitulo1.setFont(lblTitulo1Font);
@@ -127,9 +170,17 @@ public class MainAdmin extends JFrame {
         lblTitulo2.setText("Agencia Nacional de Tránsito");
         panel1.add(lblTitulo2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(4, 2, new Insets(10, 10, 10, 10), -1, -1));
+        panel2.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
         jpMainAdmin.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        panel2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Sistema de Administrador", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        panel2.setBorder(BorderFactory.createTitledBorder(null, "Modulos Administrador", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        btnSalir = new JButton();
+        btnSalir.setBackground(new Color(-1769440));
+        btnSalir.setEnabled(true);
+        Font btnSalirFont = this.$$$getFont$$$("Arial", Font.BOLD, 16, btnSalir.getFont());
+        if (btnSalirFont != null) btnSalir.setFont(btnSalirFont);
+        btnSalir.setForeground(new Color(-16777216));
+        btnSalir.setText("Salir");
+        panel2.add(btnSalir, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
         btnGestionUsuarios = new JButton();
         Font btnGestionUsuariosFont = this.$$$getFont$$$("Arial", -1, 14, btnGestionUsuarios.getFont());
         if (btnGestionUsuariosFont != null) btnGestionUsuarios.setFont(btnGestionUsuariosFont);
@@ -140,14 +191,6 @@ public class MainAdmin extends JFrame {
         if (btnGenerarReporteFont != null) btnGenerarReporte.setFont(btnGenerarReporteFont);
         btnGenerarReporte.setText("Generar Reporte");
         panel2.add(btnGenerarReporte, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 80), null, 0, false));
-        btnSalir = new JButton();
-        btnSalir.setBackground(new Color(-1769440));
-        Font btnSalirFont = this.$$$getFont$$$("Arial", Font.BOLD, 14, btnSalir.getFont());
-        if (btnSalirFont != null) btnSalir.setFont(btnSalirFont);
-        btnSalir.setForeground(new Color(-16383732));
-        btnSalir.setHideActionText(false);
-        btnSalir.setText("Salir");
-        panel2.add(btnSalir, new GridConstraints(1, 0, 3, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
     }
 
     /**

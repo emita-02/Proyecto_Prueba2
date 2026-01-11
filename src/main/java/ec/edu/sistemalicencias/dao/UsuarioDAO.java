@@ -178,6 +178,34 @@ public class UsuarioDAO implements Persistible<Usuario> {
         }
     }
 
+    public Usuario buscarLogin(String username, String password) throws BaseDatosException{
+        String sql = "SELECT * FROM usuarios where username = ? and password = ? and activo = true";
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = dbConfig.obtenerConexion();
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapearUsuario(rs);
+            }
+
+            return null;
+
+        } catch (SQLException e) {
+            throw new BaseDatosException("Error al autenticar usuario: " + e.getMessage(), e);
+        } finally {
+            cerrarRecursos(conn, stmt, rs);
+        }
+    }
+
     public List<Usuario> mostrarUsuarios() throws BaseDatosException{
         String sql = "SELECT * FROM usuarios";
 

@@ -1,5 +1,6 @@
 package ec.edu.sistemalicencias.util;
 
+import java.util.List;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.draw.LineSeparator;
@@ -7,6 +8,7 @@ import ec.edu.sistemalicencias.model.TipoLicenciaConstantes;
 import ec.edu.sistemalicencias.model.entities.Conductor;
 import ec.edu.sistemalicencias.model.entities.Licencia;
 import ec.edu.sistemalicencias.model.entities.PruebaPsicometrica;
+import ec.edu.sistemalicencias.model.entities.Usuario;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,7 +49,11 @@ public class PDFGenerator {
         documento.open();
 
         // Agregar contenido al documento
-        agregarEncabezado(documento);
+        agregarEncabezadoBase(documento);
+        Paragraph tipoDoc = new Paragraph("LICENCIA DE CONDUCIR", FONT_SUBTITULO);
+        tipoDoc.setAlignment(Element.ALIGN_CENTER);
+        tipoDoc.setSpacingAfter(20);
+        documento.add(tipoDoc);
         agregarDatosConductor(documento, conductor);
         agregarDatosLicencia(documento, licencia);
 
@@ -63,7 +69,7 @@ public class PDFGenerator {
     /**
      * Agrega el encabezado del documento
      */
-    private static void agregarEncabezado(Document documento) throws DocumentException {
+    private static void agregarEncabezadoBase(Document documento) throws DocumentException {
         // Título principal
         Paragraph titulo = new Paragraph("REPÚBLICA DEL ECUADOR", FONT_TITULO);
         titulo.setAlignment(Element.ALIGN_CENTER);
@@ -75,12 +81,6 @@ public class PDFGenerator {
         subtitulo.setAlignment(Element.ALIGN_CENTER);
         subtitulo.setSpacingAfter(5);
         documento.add(subtitulo);
-
-        // Tipo de documento
-        Paragraph tipoDoc = new Paragraph("LICENCIA DE CONDUCIR", FONT_SUBTITULO);
-        tipoDoc.setAlignment(Element.ALIGN_CENTER);
-        tipoDoc.setSpacingAfter(20);
-        documento.add(tipoDoc);
 
         // Línea separadora
         LineSeparator linea = new LineSeparator();
@@ -292,4 +292,67 @@ public class PDFGenerator {
         celdaValor.setPadding(5);
         tabla.addCell(celdaValor);
     }
+
+    /**
+     * Helper para agregar fila a la tabla de encabezado
+     * @param tabla
+     * @param texto
+     */
+    private static void agregarEncabezadoTabla(PdfPTable tabla, String texto) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto, FONT_CAMPO));
+        celda.setBackgroundColor(new BaseColor(230, 240, 255));
+        celda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        celda.setPadding(6);
+        tabla.addCell(celda);
+    }
+
+
+    /**
+     * Metodo para crear el reporte de usuarios en fromato PDF
+     */
+    public static void generarReporteUsuariosPDF(List<Usuario> lista, String rutaArchivo)
+            throws DocumentException, IOException {
+
+        Document documento = new Document(PageSize.A4);
+        PdfWriter.getInstance(documento, new FileOutputStream(rutaArchivo));
+        documento.open();
+
+
+        agregarEncabezadoBase(documento);
+
+        Paragraph titulo = new Paragraph("REPORTE GENERAL DE USUARIOS REGISTRADOS EN EL SISTEMA", FONT_SUBTITULO);
+        titulo.setAlignment(Element.ALIGN_CENTER);
+        titulo.setSpacingBefore(10);
+        titulo.setSpacingAfter(20);
+        documento.add(titulo);
+
+        PdfPTable tabla = new PdfPTable(6);
+        tabla.setWidthPercentage(100);
+        tabla.setSpacingBefore(10);
+        tabla.setSpacingAfter(15);
+
+        tabla.setWidths(new float[]{10f, 30f, 25f, 30f, 20f, 20f});
+
+        agregarEncabezadoTabla(tabla, "ID");
+        agregarEncabezadoTabla(tabla, "NOMBRE");
+        agregarEncabezadoTabla(tabla, "CÉDULA");
+        agregarEncabezadoTabla(tabla, "USUARIO");
+        agregarEncabezadoTabla(tabla, "ROL");
+        agregarEncabezadoTabla(tabla, "ESTADO");
+
+        for (Usuario u : lista) {
+            tabla.addCell(new Phrase(String.valueOf(u.getId()), FONT_NORMAL));
+            tabla.addCell(new Phrase(u.getNombre(), FONT_NORMAL));
+            tabla.addCell(new Phrase(u.getCedula(), FONT_NORMAL));
+            tabla.addCell(new Phrase(u.getUsername(), FONT_NORMAL));
+            tabla.addCell(new Phrase(u.getRol(), FONT_NORMAL));
+            tabla.addCell(new Phrase(u.isActivo() ? "ACTIVO" : "DESACTIVADO", FONT_NORMAL));
+        }
+
+        documento.add(tabla);
+
+        agregarPiePagina(documento);
+        documento.close();
+    }
+
 }

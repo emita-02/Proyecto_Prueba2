@@ -5,6 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import ec.edu.sistemalicencias.controller.UsuarioController;
 import ec.edu.sistemalicencias.model.entities.Usuario;
+import ec.edu.sistemalicencias.model.exceptions.BaseDatosException;
 import ec.edu.sistemalicencias.model.exceptions.DatosInvalidosException;
 import ec.edu.sistemalicencias.util.PasswordUtil;
 
@@ -94,8 +95,10 @@ public class GestionUsuarios extends JFrame {
             JOptionPane.showMessageDialog(this, "Usuario creado correctamente");
             cargarTabla();
             limpiarFormulario();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (DatosInvalidosException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
+        } catch (BaseDatosException e) {
+            JOptionPane.showMessageDialog(this, "Error en base de datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -104,8 +107,10 @@ public class GestionUsuarios extends JFrame {
             controller.actualizarUsuario(obtenerDatos());
             JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente");
             cargarTabla();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (DatosInvalidosException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
+        } catch (BaseDatosException e) {
+            JOptionPane.showMessageDialog(this, "Error en base de datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -308,4 +313,5 @@ public class GestionUsuarios extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panelAdmin;
     }
+
 }

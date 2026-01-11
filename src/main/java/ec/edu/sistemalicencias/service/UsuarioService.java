@@ -86,15 +86,18 @@ public class UsuarioService{
 
                 usuario.setPassword(generarPassword());
                 usuario.setActivo(true);
+                usuarioDAO.insertarUsuario(usuario);
 
-            //Si se actualiza algun dato de los usuarios registrados
+
+                //Si se actualiza algun dato de los usuarios registrados
             } else {
                 if (usuarioExistente != null && !usuarioExistente.getId().equals(usuario.getId())){
                     throw new DatosInvalidosException("El nombre de usuario ya existe.");
                 }
+                usuarioDAO.actualizarUsuario(usuario);
             }
 
-            usuarioDAO.insertarUsuario(usuario);
+
 
         } catch (BaseDatosException e){
             throw e;

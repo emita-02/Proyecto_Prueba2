@@ -1,6 +1,7 @@
 package ec.edu.sistemalicencias.controller;
 
 import ec.edu.sistemalicencias.model.entities.Usuario;
+import ec.edu.sistemalicencias.model.exceptions.BaseDatosException;
 import ec.edu.sistemalicencias.model.exceptions.DatosInvalidosException;
 import ec.edu.sistemalicencias.service.UsuarioService;
 
@@ -18,27 +19,14 @@ public class UsuarioController {
     }
 
     // ----------CRUD del sistema para el usuario Administrador ------------------
-    public void crearUsuario(Usuario usuario) {
-        try {
-            usuarioService.guardarUsuario(usuario);
-            mostrarExito("Usuario creado correctamente.");
-        } catch (DatosInvalidosException e) {
-            mostrarError(e.getMessage());
-        } catch (Exception e) {
-            mostrarError("Error al crear usuario: " + e.getMessage());
-        }
+    public void crearUsuario(Usuario usuario) throws DatosInvalidosException, BaseDatosException {
+        usuarioService.guardarUsuario(usuario);
     }
 
     // Actualizar usuario
-    public void actualizarUsuario(Usuario usuario) {
-        try {
-            usuarioService.guardarUsuario(usuario);
-            mostrarExito("Usuario actualizado correctamente.");
-        } catch (DatosInvalidosException e) {
-            mostrarError(e.getMessage());
-        } catch (Exception e) {
-            mostrarError("Error al actualizar usuario: " + e.getMessage());
-        }
+    public void actualizarUsuario(Usuario usuario) throws DatosInvalidosException, BaseDatosException{
+        usuarioService.guardarUsuario(usuario);
+
     }
 
     // Listar todos los usuarios

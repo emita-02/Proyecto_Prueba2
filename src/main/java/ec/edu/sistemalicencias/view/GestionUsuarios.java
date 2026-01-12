@@ -11,7 +11,6 @@ import ec.edu.sistemalicencias.util.PasswordUtil;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.awt.*;
 
@@ -44,6 +43,7 @@ public class GestionUsuarios extends JFrame {
     private JLabel lblEstado;
     private JButton btnRegresar;
     private JButton btnContraseña;
+    private JButton btnEliminar;
 
 
     private UsuarioController controller;
@@ -75,6 +75,7 @@ public class GestionUsuarios extends JFrame {
         btnLimpiar.addActionListener(e -> limpiarFormulario());
         btnBuscar.addActionListener(e -> buscarOCargar());
         btnContraseña.addActionListener(e -> generarPassword());
+        btnEliminar.addActionListener(e -> eliminarUsuario());
         btnRegresar.addActionListener(e -> dispose());
 
         //Seleccionar el usuario en la tabla para modificarlo
@@ -111,6 +112,34 @@ public class GestionUsuarios extends JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Datos inválidos", JOptionPane.ERROR_MESSAGE);
         } catch (BaseDatosException e) {
             JOptionPane.showMessageDialog(this, "Error en base de datos: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void eliminarUsuario() {
+        int filaSeleccionada = tablaUsuarios.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor selecciona un usuario para eliminar.");
+            return;
+        }
+
+        Long idUsuario = (Long) tablaUsuarios.getValueAt(filaSeleccionada, 0);
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "¿Estás seguro de que quieres eliminar este usuario?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            controller.eliminarUsuario(idUsuario); // Llama al controller, ya tienes el flujo
+            JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente.");
+            cargarTabla(); // Refresca la JTable para que desaparezca el registro
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al eliminar usuario: " + ex.getMessage());
         }
     }
 
@@ -226,7 +255,7 @@ public class GestionUsuarios extends JFrame {
         panelAdmin = new JPanel();
         panelAdmin.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
         panelFormulario = new JPanel();
-        panelFormulario.setLayout(new GridLayoutManager(4, 5, new Insets(10, 10, 10, 10), -1, -1));
+        panelFormulario.setLayout(new GridLayoutManager(4, 6, new Insets(10, 10, 10, 10), -1, -1));
         panelAdmin.add(panelFormulario, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         panelFormulario.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Datos de Usuario", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         lblNombre = new JLabel();
@@ -243,9 +272,6 @@ public class GestionUsuarios extends JFrame {
         panelFormulario.add(lblContraseña, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         txtContraseña = new JTextField();
         panelFormulario.add(txtContraseña, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        btnContraseña = new JButton();
-        btnContraseña.setText("Generar Contraseña");
-        panelFormulario.add(btnContraseña, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         lblRol = new JLabel();
         lblRol.setText("Rol:");
         panelFormulario.add(lblRol, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -270,6 +296,12 @@ public class GestionUsuarios extends JFrame {
         lblUserName = new JLabel();
         lblUserName.setText("UserName:");
         panelFormulario.add(lblUserName, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnContraseña = new JButton();
+        btnContraseña.setText("Generar Contraseña");
+        panelFormulario.add(btnContraseña, new GridConstraints(1, 4, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnLimpiar = new JButton();
+        btnLimpiar.setText("Limpiar");
+        panelFormulario.add(btnLimpiar, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         panelAdmin.add(scrollPane1, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         scrollPane1.setBorder(BorderFactory.createTitledBorder(null, "Usuarios Registrados", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
@@ -284,12 +316,12 @@ public class GestionUsuarios extends JFrame {
         btnActualizar = new JButton();
         btnActualizar.setText("Actualizar");
         panelBotones.add(btnActualizar, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        btnLimpiar = new JButton();
-        btnLimpiar.setText("Limpiar");
-        panelBotones.add(btnLimpiar, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnRegresar = new JButton();
         btnRegresar.setText("Regresar");
         panelBotones.add(btnRegresar, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnEliminar = new JButton();
+        btnEliminar.setText("Eliminar");
+        panelBotones.add(btnEliminar, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         paneBusqueda = new JPanel();
         paneBusqueda.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
         panelAdmin.add(paneBusqueda, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

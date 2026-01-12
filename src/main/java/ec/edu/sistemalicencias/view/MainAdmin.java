@@ -80,7 +80,7 @@ public class MainAdmin extends JFrame {
             //Seleccionar ubicacion para guardar
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Guardar Reporte de Usarios.");
-            fileChooser.setSelectedFile(new File("Reporte_Usuarios" + LocalDate.now() + ".pdf"));
+            fileChooser.setSelectedFile(new File("Reporte_Usuarios_" + LocalDate.now() + ".pdf"));
 
             int resultado = fileChooser.showSaveDialog(this);
             if (resultado == JFileChooser.APPROVE_OPTION) {

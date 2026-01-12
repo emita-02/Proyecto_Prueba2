@@ -29,6 +29,12 @@ public class Main {
 
         // Verificar conexión a base de datos
         DatabaseConfig dbConfig = DatabaseConfig.getInstance();
+        if (dbConfig.verificarConexion()){
+            System.out.println("Conectado correctamente a Supabase - PostgresSQL");
+        } else {
+            System.out.println("No se pudo conectar a Supabase");
+            return;
+        }
 
         SwingUtilities.invokeLater(() -> {
             // Mostrar splash screen o mensaje de inicio
@@ -43,9 +49,6 @@ public class Main {
             LoginView loginView = new LoginView();
             loginView.setVisible(true);
 
-            // Iniciar ventana principal
-            //MainView mainView = new MainView();
-           // mainView.setVisible(true);
         });
     }
 
@@ -73,12 +76,12 @@ public class Main {
      */
     private static void mostrarErrorConexion() {
         String mensaje = "ERROR DE CONEXIÓN A BASE DE DATOS\n\n" +
-                "No se pudo establecer conexión con MySQL.\n\n" +
+                "No se pudo establecer conexión con Supabase - PostgresSQL.\n\n" +
                 "Verifique que:\n" +
-                "1. MySQL Server esté ejecutándose\n" +
+                "1. Supabase esté ejecutándose\n" +
                 "2. La base de datos 'sistema_licencias' exista\n" +
-                "3. Las credenciales sean correctas (usuario: root, password: root)\n" +
-                "4. El servidor esté en localhost:3306\n\n" +
+                "3. Las credenciales sean correctas (usuario: postgres, password: postgres)\n" +
+                "4. El servidor esté en localhost:5532\n\n" +
                 "Para crear la base de datos, ejecute el script:\n" +
                 "src/main/resources/schema.sql\n\n" +
                 "La aplicación se cerrará.";

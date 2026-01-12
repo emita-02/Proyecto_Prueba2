@@ -7,45 +7,43 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Clase de configuración para la conexión a la base de datos MySQL.
- * Implementa el patrón Singleton para gestionar una única instancia de configuración.
- *
- * @author Sistema Licencias Ecuador
- * @version 1.0
+ * Clase encargada de establecer conexión con la base de datos PostgresSQL
+ * integrada en supabase.
  */
 public class DatabaseConfig {
 
     // Instancia única (Singleton)
     private static DatabaseConfig instancia;
 
-    // Parámetros de conexión (Encapsulamiento)
-    private final String url;
-    private final String usuario;
-    private final String password;
-    private final String driver;
+    //Driver JDBC de PostgresSQL
+    private static final String DRIVER = "org.postgresql.Driver";
+
+    //URL de conexión dada por Supabase
+    private static final String URL = "jdbc:postgresql://db.hzbqodboqmrkwyxbzqma.supabase.co:5432/postgres?sslmode=require";
+
+    //Usuario de la BD por defecto
+    private static final String USER = "postgres";
+
+    //Contraseña establecida para la BD
+    private static final String PASSWORD = "SistemaLicen123";
 
     /**
-     * Constructor privado para implementar Singleton
-     * Carga los parámetros de conexión desde configuración
+     * Constructor privado para evitar la creación de múltiples isntancias.
+     * Se carga el driver JDBC de PostgresSQL
      */
     private DatabaseConfig() {
-        // Configuración por defecto - puede ser sobreescrita mediante properties
-        this.driver = "com.mysql.cj.jdbc.Driver";
-        this.url = "jdbc:mysql://localhost:3306/sistema_licencias?useSSL=false&serverTimezone=UTC";
-        this.usuario = "root";
-        this.password = "1234";
-
         try {
-            // Cargar el driver JDBC
-            Class.forName(driver);
+            Class.forName(DRIVER);
+            System.out.println("Driver PostgreSQL cargado correctamente.");
         } catch (ClassNotFoundException e) {
-            System.err.println("Error al cargar el driver MySQL: " + e.getMessage());
+            System.err.println("Error: No se pudo cargar el driver de PostgreSQL.");
+            e.printStackTrace();
         }
     }
 
     /**
-     * Obtiene la instancia única de DatabaseConfig (Singleton)
-     * @return Instancia de DatabaseConfig
+     * Retorna la instancia unica de DatabseConfig
+     * Si no existe, este lo crea.
      */
     public static synchronized DatabaseConfig getInstance() {
         if (instancia == null) {
@@ -55,20 +53,15 @@ public class DatabaseConfig {
     }
 
     /**
-     * Crea y retorna una conexión a la base de datos
-     * @return Objeto Connection
-     * @throws BaseDatosException Si no se puede establecer la conexión
+     * Obtiene una conexión activa hacia la BD en Supabase.
+     * @return Connection conexión a PostgresSQL
+     * @throws SQLException
      */
-    public Connection obtenerConexion() throws BaseDatosException {
+    public Connection obtenerConexion() throws BaseDatosException{
         try {
-            Connection conexion = DriverManager.getConnection(url, usuario, password);
-            conexion.setAutoCommit(true);
-            return conexion;
-        } catch (SQLException e) {
-            throw new BaseDatosException(
-                    "Error al conectar con la base de datos: " + e.getMessage(),
-                    e
-            );
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException e){
+            throw new BaseDatosException("Error al conectar con la BD en Supabase.", e);
         }
     }
 
@@ -101,17 +94,4 @@ public class DatabaseConfig {
         }
     }
 
-    // Getters
-
-    public String getUrl() {
-        return url;
-    }
-
-    public String getUsuario() {
-        return usuario;
-    }
-
-    public String getDriver() {
-        return driver;
-    }
 }
